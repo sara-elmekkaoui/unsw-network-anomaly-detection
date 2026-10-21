@@ -1,7 +1,5 @@
 # Détection d’anomalies réseau — Approche hybride Machine Learning et Deep Learning
 
-**Mini-projet | Module Sécurité des systèmes informatiques | Master SIDI**
-
 ## 1. Présentation du projet
 
 Ce projet vise à concevoir et comparer quatre architectures hybrides combinant le **Deep Learning (DL)** et le **Machine Learning (ML)** classique pour la détection d’anomalies réseau, notamment les intrusions et les activités malveillantes.
