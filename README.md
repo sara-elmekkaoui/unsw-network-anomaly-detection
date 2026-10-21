@@ -1,97 +1,186 @@
-# Détection d'anomalies IoT/réseau — Approche hybride ML + DL
-### Mini-projet — Module Sécurité des systèmes informatiques — Master SIDI
+# Détection d’anomalies réseau — Approche hybride Machine Learning et Deep Learning
 
-Ce projet implémente et compare **4 architectures hybrides** combinant
-Machine Learning classique et Deep Learning pour la détection d'anomalies
-(intrusions/botnets) sur le dataset **UNSW-NB15**.
+**Mini-projet | Module Sécurité des systèmes informatiques | Master SIDI**
 
-## 1. Architectures implémentées
+## 1. Présentation du projet
 
-| Modèle | Deep Learning (extraction) | Machine Learning (classification) | Principe |
+Ce projet vise à concevoir et comparer quatre architectures hybrides combinant le **Deep Learning (DL)** et le **Machine Learning (ML)** classique pour la détection d’anomalies réseau, notamment les intrusions et les activités malveillantes.
+
+Les expérimentations s’appuient sur le dataset **UNSW-NB15**, qui contient des exemples de trafic réseau normal et malveillant.
+
+L’objectif est d’évaluer différentes stratégies d’extraction de caractéristiques et de classification selon leurs performances de détection, leur capacité de généralisation et leur coût de calcul.
+
+## 2. Architectures implémentées
+
+Quatre modèles hybrides sont étudiés :
+
+| Modèle | Extraction de caractéristiques (DL) | Classification (ML) | Principe |
 |---|---|---|---|
-| **H1** | Auto-Encoder | Random Forest | L'AE est entraîné uniquement sur du trafic *normal* ; l'erreur de reconstruction devient une feature d'anomalie ajoutée aux features originales, classifiées par RF. |
-| **H2** | LSTM | SVM | Le LSTM apprend une représentation séquentielle des features (embedding) ; le SVM classifie à partir de cet embedding. |
-| **H3** | MLP | XGBoost | Le MLP apprend des features profondes (embedding) ; XGBoost classifie à partir des features originales + embedding. |
-| **H4** | CNN1D | Gradient Boosting | Le CNN1D extrait des motifs locaux dans le vecteur de features ; Gradient Boosting classifie à partir de l'embedding obtenu. |
+| **H1** | Auto-Encoder | Random Forest | Exploite l’erreur de reconstruction comme indicateur supplémentaire d’anomalie, combiné aux caractéristiques originales. |
+| **H2** | LSTM | SVM | Apprend une représentation des caractéristiques avec un réseau LSTM, puis utilise cette représentation pour la classification. |
+| **H3** | MLP | XGBoost | Combine les caractéristiques originales et les représentations apprises par le MLP avant la classification. |
+| **H4** | CNN 1D | Gradient Boosting | Extrait des motifs locaux dans les vecteurs de caractéristiques, puis effectue la classification à partir de la représentation obtenue. |
 
-## 2. Structure du projet
+## 3. Technologies utilisées
 
-```
-unsw_project/
-├── config.py          # Chemins, hyperparamètres, constantes
-├── preprocessing.py   # Chargement, nettoyage, encodage, normalisation, SMOTE
-├── models.py           # Les 4 classes de modèles hybrides H1 à H4
-├── evaluate.py          # Calcul des métriques + collecte des données pour les graphiques
-├── plotting.py            # Génération des matrices de confusion et courbes ROC
-├── main.py                 # Script principal à exécuter
+- **Langage :** Python
+- **Deep Learning :** TensorFlow / Keras
+- **Machine Learning :** Scikit-learn, XGBoost
+- **Manipulation des données :** Pandas, NumPy
+- **Visualisation :** Matplotlib
+- **Prétraitement :** encodage des variables catégorielles, normalisation et rééquilibrage des classes avec SMOTE
+
+## 4. Structure du projet
+
+```text
+unsw-network-anomaly-detection/
+├── config.py
+├── preprocessing.py
+├── models.py
+├── evaluate.py
+├── plotting.py
+├── main.py
 ├── requirements.txt
-├── data/                  # <- À PLACER ICI vos fichiers CSV UNSW-NB15
-└── results/               # Tableau de résultats (CSV) + graphiques (PNG) générés
+├── README.md
+├── data/
+│   ├── UNSW_NB15_training-set.csv
+│   └── UNSW_NB15_testing-set.csv
+└── results/
+    ├── confusion_matrices_all.png
+    ├── roc_curves_all.png
+    ├── detail_h1.png
+    ├── detail_h2.png
+    ├── detail_h3.png
+    └── detail_h4.png
 ```
 
-## 3. Installation
+Les fichiers Python sont organisés autour de plusieurs modules :
+
+- `config.py` : chemins, constantes et hyperparamètres.
+- `preprocessing.py` : chargement et préparation des données.
+- `models.py` : implémentation des quatre architectures hybrides.
+- `evaluate.py` : calcul des métriques et collecte des données d’évaluation.
+- `plotting.py` : génération des graphiques comparatifs.
+- `main.py` : script principal d’exécution.
+- `requirements.txt` : dépendances nécessaires au projet.
+
+Le dépôt contient également un dossier `Mini projet/` avec une copie secondaire de certains scripts et graphiques.
+
+## 5. Dataset
+
+Le projet utilise le dataset **UNSW-NB15**, développé pour la recherche sur la détection d’intrusions réseau.
+
+**Page officielle :** [UNSW-NB15 Dataset](https://research.unsw.edu.au/projects/unsw-nb15-dataset)
+
+Les deux fichiers attendus sont :
+
+- `UNSW_NB15_training-set.csv`
+- `UNSW_NB15_testing-set.csv`
+
+Placez-les dans le dossier `data/` en conservant leurs noms d’origine.
+
+Si les fichiers sont absents, le programme peut utiliser un jeu de données synthétique de démonstration, conformément au comportement prévu dans le code. Les résultats obtenus sur ces données synthétiques ne représentent pas les performances des modèles sur le dataset UNSW-NB15 réel.
+
+## 6. Installation
+
+### Cloner le dépôt
 
 ```bash
-pip install -r requirements.txt
+git clone https://github.com/sara-elmekkaoui/unsw-network-anomaly-detection.git
+cd unsw-network-anomaly-detection
 ```
 
-(Testé avec Python 3.10+, TensorFlow 2.21, scikit-learn 1.8, XGBoost 2.x)
+### Créer un environnement virtuel
 
-## 4. Récupération du dataset réel
+Sous Windows :
 
-Le dataset UNSW-NB15 (version prétraitée par les auteurs, déjà divisée en
-train/test) est disponible ici :
-- Page officielle : https://research.unsw.edu.au/projects/unsw-nb15-dataset
-- Fichiers à télécharger : `UNSW_NB15_training-set.csv` et `UNSW_NB15_testing-set.csv`
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
 
-Placez ces deux fichiers dans le dossier `data/` du projet, **sans changer
-leur nom**. Si ces fichiers sont absents, `main.py` génère automatiquement
-un petit dataset **synthétique** de démonstration afin que vous puissiez
-vérifier que le code s'exécute correctement avant d'avoir les vraies
-données (un message d'avertissement vous le signale clairement dans la
-console).
-
-## 5. Exécution
+### Installer les dépendances
 
 ```bash
-python3 main.py
+python -m pip install -r requirements.txt
 ```
 
-Le script va :
-1. Charger et prétraiter les données (nettoyage, encodage One-Hot des
-   colonnes `proto`/`service`/`state`, normalisation StandardScaler,
-   rééquilibrage SMOTE sur le train).
-2. Entraîner et évaluer successivement H1, H2, H3 et H4.
-3. Afficher dans la console le tableau de résultats (Précision, Rappel,
-   F1-Score, Accuracy, temps d'entraînement, temps d'inférence — pour
-   chaque modèle et chaque classe "Avec anomalie" / "Sans anomalie").
-4. Sauvegarder ce tableau dans `results/resultats_finaux.csv`.
-5. Générer automatiquement les graphiques dans `results/` :
-   - `confusion_matrices_all.png` — les 4 matrices de confusion côte à côte
-   - `roc_curves_all.png` — les 4 courbes ROC superposées (avec AUC), idéal
-     pour comparer directement les modèles dans le rapport
-   - `detail_h1.png`, `detail_h2.png`, `detail_h3.png`, `detail_h4.png` —
-     une figure par modèle (matrice de confusion + courbe ROC côte à côte),
-     pratique si vous voulez commenter chaque modèle individuellement
+Les principales dépendances sont :
 
-## 6. Points à ajuster avant l'exécution sur le vrai dataset complet
+- Pandas
+- NumPy
+- Matplotlib
+- Scikit-learn
+- Imbalanced-learn
+- XGBoost
+- TensorFlow CPU
 
-- **`config.EPOCHS`** : 15 par défaut (suffisant pour tester) ; augmentez
-  (30-50) pour de meilleures performances sur le dataset complet.
-- **`config.BATCH_SIZE`** : 256 par défaut, à adapter selon votre RAM/GPU.
-- Le dataset complet UNSW-NB15 contient ~175 000 lignes (train) — prévoyez
-  un temps de calcul plus long que sur les données synthétiques de test.
-- Si vous souhaitez une analyse multi-classes (par type d'attaque :
-  Fuzzers, DoS, Exploits, Generic, etc.), utilisez la colonne
-  `attack_cat` à la place de `label`, et adaptez `evaluate.py` en
-  conséquence (métriques multi-classes).
+Les versions exactes utilisées peuvent varier selon l’environnement Python et les dépendances installées.
 
-## 7. Pour le rapport
+## 7. Exécution
 
-- Le tableau généré dans `results/resultats_finaux.csv` correspond
-  directement au tableau demandé dans l'énoncé du mini-projet.
-- Pensez à ajouter dans le rapport : la matrice de confusion de chaque
-  modèle (affichée dans la console pendant l'exécution), une courbe
-  ROC/AUC si souhaité, et une discussion comparant les 4 architectures
-  (compromis performance / temps de calcul, sensibilité au déséquilibre
-  des classes, etc.).
+Depuis le répertoire principal du projet, exécutez :
+
+```bash
+python main.py
+```
+
+Le programme est conçu pour effectuer les opérations suivantes :
+
+1. Charger et prétraiter les données.
+2. Encoder les variables catégorielles et normaliser les caractéristiques numériques.
+3. Rééquilibrer les données d’entraînement à l’aide de SMOTE.
+4. Entraîner et évaluer les quatre architectures hybrides H1, H2, H3 et H4.
+5. Afficher un tableau récapitulatif des résultats dans la console.
+6. Enregistrer les métriques dans un fichier CSV.
+7. Générer les graphiques d’évaluation dans le dossier `results/`.
+
+La durée d’exécution dépend notamment du matériel disponible, des hyperparamètres et de la taille du jeu de données.
+
+## 8. Évaluation des modèles
+
+Les architectures sont comparées à l’aide de plusieurs métriques :
+
+- **Accuracy :** proportion totale de prédictions correctes.
+- **Précision :** proportion de prédictions positives qui sont correctes.
+- **Rappel :** capacité à identifier les exemples réellement positifs.
+- **F1-score :** compromis entre précision et rappel.
+- **ROC-AUC :** capacité à distinguer les classes selon différents seuils de décision.
+- **Temps d’entraînement :** durée nécessaire à l’apprentissage.
+- **Temps d’inférence :** durée nécessaire pour produire les prédictions.
+
+Les matrices de confusion permettent d’étudier les erreurs de classification, tandis que les courbes ROC facilitent la comparaison des capacités de discrimination des modèles.
+
+## 9. Résultats et visualisations
+
+Après une exécution réussie de `python main.py`, le programme enregistre le tableau récapitulatif et génère les visualisations dans le dossier `results/`.
+
+| Fichier | Description |
+|---|---|
+| `resultats_finaux.csv` | Tableau des métriques d’évaluation calculées par le programme. |
+| `confusion_matrices_all.png` | Matrices de confusion comparatives des quatre modèles. |
+| `roc_curves_all.png` | Courbes ROC comparatives avec les valeurs AUC, selon l’implémentation. |
+| `detail_h1.png` | Visualisation détaillée du modèle H1. |
+| `detail_h2.png` | Visualisation détaillée du modèle H2. |
+| `detail_h3.png` | Visualisation détaillée du modèle H3. |
+| `detail_h4.png` | Visualisation détaillée du modèle H4. |
+
+Les résultats dépendent des données utilisées et du bon déroulement de l’entraînement et de l’évaluation.
+
+## 10. Perspectives d’amélioration
+
+Plusieurs pistes peuvent prolonger ce travail :
+
+- Optimiser les hyperparamètres des quatre architectures.
+- Étudier les compromis entre précision, rappel et temps de calcul.
+- Analyser les faux positifs et les faux négatifs.
+- Étendre l’étude à la classification multiclasse des catégories d’attaques à partir de la colonne `attack_cat`.
+- Évaluer la capacité de généralisation des modèles sur d’autres jeux de données réseau.
+
+## 11. Auteurs et ressources
+
+**Cadre académique :** Master Systèmes d’Information Décisionnels et Imagerie (SIDI)  
+**Module :** Sécurité des systèmes informatiques  
+**Dataset :** [UNSW-NB15](https://research.unsw.edu.au/projects/unsw-nb15-dataset)
+
+**Dépôt GitHub :** [unsw-network-anomaly-detection](https://github.com/sara-elmekkaoui/unsw-network-anomaly-detection)
